@@ -211,4 +211,206 @@
 
     Firewall
     --------
+    Этот пункт опять вогнал меня в ступор. И вовсе не потому, что я знаю, как
+    сделать лучше. Совсем наоборот - я вообще поначалу не понял, о чём тут речь.
+    Спасибо Максиму. Он любезно разъяснил, что файл с настройками для файрвола,
+    находится в гит-репозитарии, которым я и пользуюсь сейчас.
 
+    В общем, вот что пришлось делать:
+    1. sudo aptitude install git-core iptables
+    Этого добра на моём VDS не водилось изначально.
+    2. git clone git://github.com/Bregor/spbruby-deploy-notes.git
+    3. cd spbruby-deploy-notes
+    Далее -- по инструкции Макса.
+
+    В файле /var/lib/iptables/rules_save, в строчке:
+    -A INPUT -s x.x.x.x/32 -m comment --comment "Admin home" -j ACCEPT
+    надо x.x.x.x поменять на свой статический ip-адрес. Если он есть. Желательно,
+    чтобы он был домашним, то есть личным, ip-адресом. С этого адреса будет
+    позволен полный доступ к серверу.
+
+    И надо иметь в виду, если в предыдущем разделе не изменялся стандартный порт
+    для ssh, то в следующей строчке надо исправить "22222" на "22".
+
+    Всё. С предварительной настройкой покончено. Для проверки разорвал
+    ssh-соединение и залогинился снова. Получилось. Завтра попробую проделать это
+    с динамического ip-адреса.
+
+==========================
+Раздел User shell settings
+==========================
+    Colors, aliases, git-branch, etc
+    --------------------------------
+    Тут вроде как всё понятно.
+
+    Locale settings
+    ---------------
+    Тут тоже.
+
+===============================
+Раздел Primary Software Install
+===============================
+    Prerequisites
+    -------------
+    Думается мне, что этот раздел, как и предыдущий, стоило бы перенести в начало
+    инструкции. Ну, да ладно.
+
+    RubyEE
+    ------
+    До этого как-то не доверял этому способу установки руби. Но если профессионалы
+    советуют, то деваться некуда. Будем испытать.
+
+    Гм... Надо бы и на локальной машине это дело установить.
+
+    Особенность, ранее мне незнакомая: Руби будет собираться из git-репозитария.
+
+    RubyGems
+    --------
+    Всё штатно.
+
+    Rails
+    -----
+    Аналогично.
+
+    NGINX and Phusion Passenger
+    ---------------------------
+    А тут начались сюрпризы.
+    apt-get категорически отказался устанавливать пакеты libpcre3, libxml2,
+    libxslt-dev и curl-ssl:
+    --------------------------------------------------------------------------
+    | new_user@remote$ sudo apt-get install -y libpcre3 libpcre3-dev libperl-|
+    |dev libxml2-dev libxml2 libxslt-dev curl-ssl libcurl4-openssl-dev       |
+    |Reading package lists... Done                                           |
+    |Building dependency tree                                                |
+    |Reading state information... Done                                       |
+    |libpcre3 is already the newest version.                                 |
+    |libxml2 is already the newest version.                                  |
+    |libxml2 set to manually installed.                                      |
+    |Note, selecting libxslt1-dev instead of libxslt-dev                     |
+    |Package curl-ssl is a virtual package provided by:                      |
+    |  curl 7.18.2-8ubuntu4.1                                                |
+    |You should explicitly select one to install.                            |
+    |E: Package curl-ssl has no installation candidate                       |
+    --------------------------------------------------------------------------
+
+    aptitude тоже ругнулся, но установку не прервал:
+    --------------------------------------------------------------------------
+    | new_user@remote$ sudo aptitude install -y libpcre3 libpcre3-dev libperl|
+    |-dev libxml2-dev libxml2 libxslt-dev curl-ssl libcurl4-openssl-dev      |
+    |Reading package lists... Done                                           |
+    |Building dependency tree                                                |
+    |Reading state information... Done                                       |
+    |Reading extended state information                                      |
+    |Initializing package states... Done                                     |
+    |Writing extended state information... Done                              |
+    |Note: selecting "libxslt1-dev" instead of the                           |
+    |      virtual package "libxslt-dev"                                     |
+    |Note: selecting "curl" instead of the                                   |
+    |      virtual package "curl-ssl"                                        |
+    |The following NEW packages will be installed:                           |
+    |  curl libcurl3{a} libcurl4-openssl-dev libglib2.0-0{a} libglib2.0-data{|
+    |a} libidn11-dev{a} libldap2-dev{a} libpcre3-dev                         |
+    |  libpcrecpp0{a} libperl-dev libperl5.10{a} libxml2-dev libxslt1-dev lib|
+    |xslt1.1{a} pkg-config{a} shared-mime-info{a}                            |
+    |0 packages upgraded, 16 newly installed, 0 to remove and 0 not upgraded.|
+    |Need to get 8887kB of archives. After unpacking 28,7MB will be used.    |
+    |Writing extended state information... Done                              |
+    |Get:1 http://fr.archive.ubuntu.com jaunty-updates/main libcurl3 7.18.2-8|
+    |ubuntu4.1 [220kB]                                                       |
+    |                               ~ ~ ~                                    |
+    |Initializing package states... Done                                     |
+    |Writing extended state information... Done                              |
+    --------------------------------------------------------------------------
+
+    Как видно, aptitude заменил libxslt-dev на libxslt1-dev, и curl-ssl на curl.
+    Также, они (apt-get и aptitude) любезно сообщили, что вышеупомянутые пакеты
+    являются виртуальными. Я озадачился. Нашёл вот эту статью:
+    http://www.debian.org/doc/FAQ/ch-pkg_basics.ru.html#s-virtual
+    почитал. Понял только одно: всё нормально. Но вот нахрена нужны эти
+    виртуальные пакеты, я так и не понял.
+
+    Остальная часть прошла, как по маслу.
+
+===============
+Configure RDBMS
+===============
+
+  PostgreSQL related stuff
+  ------------------------
+  Первые два пункта прошли успешно. Затык получился на третьем:
+  * Adding user and database
+
+  psql ни в какую не хотел признавать существование юзера postgres:
+  ----------------------------------------------------------------------------
+  | new_user@remote$ psql -Upostgres                                         |
+  |psql: FATAL:  Ident authentication failed for user "postgres"             |
+  ----------------------------------------------------------------------------
+
+  Но я нашёл, как поправить это гадство. На форуме сайта sql.ru, в ветке 
+  http://www.sql.ru/Forum/actualthread.aspx?bid=7&tid=451845&hl=
+  пользователь Shweik (http://www.sql.ru/Forum/memberinfo.aspx?mid=8596) сказал,
+  что надо бы поменять юзеру метод идентификации.
+
+  Я подумал, и решил, что это резонно. Снова открыл файл /etc/postgresql/8.4/main/pg_hba.conf
+  и изменил строку
+  # Database administrative login by UNIX sockets
+  local   all         postgres                          ident
+  на
+  # Database administrative login by UNIX sockets
+  local   all         postgres                          trust
+
+  После чего перезапустил PostgeSQL:
+  ----------------------------------------------------------------------------
+  | new_user@remote$ sudo /etc/init.d/postgresql-8.4 restart                 |
+  | * Restarting PostgreSQL 8.4 database serv                          [ OK ]|
+  ----------------------------------------------------------------------------
+
+  Остальные действия прошли без эксцессов.
+
+=============
+Configure SSL
+=============
+  Надо отметить один момент: команды отмеченные "#" надо выполнять именно под
+  рутом: sudo -s. Иначе ничего не выйдет.
+
+===============
+Configure nginx
+===============
+  Тут практически всё ровно, особенно если не забывать о том, что везде вместо
+  spbruby.org, надо втыкать название своего сайта. И стоит обратить пристальное
+  внимание на файл /opt/nginx/conf/sites-available/spbruby.org в клоне проекта.
+  Начать стоит с того, что этот файл должен называться несколько иначе.
+
+=======
+Backups
+=======
+  Здесь аналогично предыдущему разделу. Только пристальное внимание надо обратить
+  на совсем другой файл -- /etc/safe.rb
+
+=============
+Logs Rotation
+=============
+  Тут тоже надо внести необходимые изменения. Например, поправить предлагаемый
+  Максом файл etc/logrotate.d/spbruby.org, и переименовав его как надо. Сам файл,
+  надо избавить от тех записей, где присутствуют несуществующие в приложении
+  папки. Это папки current и rails. Макс обмолвился, что current требуется для
+  Capistrano. А для чего была нужна rails, он уже и сам не помнит.
+
+====
+Mail
+====
+  Этот раздел я пока пропустил. На данном этапе он мне не нужен, так как я уже
+  привесил к своему сайту почтовую прибулуду от Яндекса. Пока я ещё точно не 
+  уверен, будет ли размещатся мой сайт у текущего провайдера. Плюс к тому, 
+  считаю, что на данном этапе разбираться ещё и с почтовыми заморочками - это 
+  выше крыши.
+
+  Чуть позже, когда освоюсь в своём, пока ещё толком не созданном приложении, то
+  скорее всего, прикручу к нему самописную почту. Вроде как и в рельсах были 
+  какие-то классы на эту тему...
+
+==================
+Autostart services
+==================
+  
+--------------------------------------------------------------------------------
