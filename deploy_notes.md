@@ -19,20 +19,23 @@ Add admin user
 группы, по-дефолту, в убунте нет. И команда useradd ругается на несуществующую
 группу. Пришлось добавлять вручную:
 
-    -------------------------------
     | root@remote# groupadd admin |
-    -------------------------------
+
 А потом уже добавлять пользователя.
 
 Далее, устанавливаем пароль для созданного пользователя. Тут вроде бы всё
 ясно. Следующая команда, visudo, открывает файл конфигурации команды sudo.
 Макс предложил записать туда вот такую строку:
+
     %admin ALL NOPASSWD:ALL
+
 Судя по содержанию, предполагается, что пользователи состоящие в группе admin,
 будут выполнять команды требующие прав root'а, без ввода пароля. Смутило меня
 вот что: в файле /etc/sudoers, который мы и редактируем, с помощью команды
 visudo, есть такая строчка:
+    
     # %sudo ALL=NOPASSWD: ALL
+
 В комментарии, расположенном строкой выше, предлагается её раскомментировать,
 если есть желание добиться тех же целей, но для всех. Как видно, синтаксис
 несколько отличается, от предлагаемого Максом.
@@ -65,29 +68,30 @@ Public key auth
 самого юзера — new-user.
 
 Заодно, я решил проверить, корректно ли выполнился предыдущий подраздел:
-    ----------------------------------------
+
     | root@remote# su new-user             |
     | new-user@remote$ sudo apt-get update |
-    ----------------------------------------
+    
 Ух ты! Работает, шайтан-машина!
 
 Поехали дальше. Домашний каталог у нового пользователя девственно чист, за
 исключением трёх скрытых файлов:
-    -----------------------------------------
+
     | new-user@remote$ pwd                  |
     |/home/new-user                         |
     | new-user@remote$ ls -a                |
     |.  ..  .bash_logout  .bashrc  .profile |
-    -----------------------------------------
 
 Максим предлагает следующее: посмотреть локальный файл с публичным ключом
 командой cat, создать каталог .ssh в домашней папке пользователя new-user и,
 скопировав содержимое, через буфер обмена ввести его, командой "cat >", в
-файл .ssh/authorized_keys, на VDS/VPS попутно создавая этот самый файл.
+файл .ssh/authorized\_keys, на VDS/VPS попутно создавая этот самый файл.
 
 Также, в гуглогруппе, мне предложили воспользоваться и такими командами:
-1.  предложение от sysadm
-    local$ ssh-copy-id -i ~/.ssh/id_rsa.pub логин@имя_хоста_или_IP_удалённой_машины
+
+1.  предложение от sysadmi
+
+        local$ ssh-copy-id -i ~/.ssh/id_rsa.pub логин@имя_хоста_или_IP_удалённой_машины
 
     Здесь предлагается использовать скрипт ssh-copy-id, который может не
     идти в комплекте с ОС. В Убунту он есть. Я проверил. Кстати, sysadm
@@ -97,7 +101,8 @@ Public key auth
     автоматически.
 
 2.  предложение от Димы
-    scp ~/.ssh/id_rsa.pub user@remotebox:.ssh/authorized_keys
+    
+        scp ~/.ssh/id_rsa.pub user@remotebox:.ssh/authorized_keys
 
     Здесь мы используем команду scp. Как я понял из названия и man'а,
     копирует необходимые файлы по протоколу ssh. В Убунту она также имеется.
@@ -106,9 +111,10 @@ Public key auth
 3.  предложение от Thymothy N. Tsvetkov
     Воспользоваться утилитой из мира Ruby: ssh-forever. Вот её страничка:
     https://rubygems.org/gems/ssh-forever. И описание:
-    Provides a replacement for the SSH command which automatically copies
-    your public key while logging in
-    gem install ssh-forever
+    *Provides a replacement for the SSH command which automatically copies
+    your public key while logging in*
+        gem install ssh-forever
+    
     Если я всё правильно понял и перевёл (да-да, плюс ко всему, я ещё
     пытаюсь выучить английский), имеется в виду вот что: ssh-forever
     обеспечивает замену для стандартных команд протокола ssh, которые
@@ -137,7 +143,7 @@ http://www.opennet.ru/base/sec/ssh\_pubkey\_auth.txt.html
 то будьте уверенны, что ssh у вас его попросит.
 
 Так это, или не так, сейчас проверим.
-    --------------------------------------------------------------------------
+
     | user@local$ ssh-copy-id -i ~/.ssh/id_rsa.pub new-user@000.111.222.333  |
     |new-user@000.111.222.333's password: <enter password>                   |
     |Now try logging into the machine, with "ssh 'new-user@000.111.222.333'",|
@@ -146,13 +152,12 @@ http://www.opennet.ru/base/sec/ssh\_pubkey\_auth.txt.html
     |.ssh/authorized_keys                                                    |
     |                                                                        |
     |to make sure we haven't added extra keys that you weren't expecting.    |
-    --------------------------------------------------------------------------
+
 Всё прошло успешно, и ssh-copy-id предлагает залогиниться через ssh, как
 new-user@000.111.222.333, и проверить файл .ssh/authorized\_keys, "чтобы
 убедиться, что мы не добавили левые ключи, которых вы не ожидали". Заботливый
 скрипт, однако!
 
-    --------------------------------------------------------------------------
     | user@local$ ssh new-user@000.111.222.333                               |
     |Linux remote 2.6.bla-bla-bla #1 SMP Fri Oct 1 14:17:14 MSD 2010 i686    |
     |                                                                        |
@@ -169,7 +174,6 @@ new-user@000.111.222.333, и проверить файл .ssh/authorized\_keys, 
     |See "man sudo_root" for details.                                        |
     |                                                                        |
     | new-user@remote$                                                       |
-    --------------------------------------------------------------------------
 
 Всё прошло удачно. Как я и предполагал, ssh попросил именно тот пароль,
 который я указывал при создании публичного ключа. Из чего следует два вывода:
@@ -225,7 +229,9 @@ Firewall
 Далее — по инструкции Макса.
 
 В файле /var/lib/iptables/rules\_save, в строчке:
+
     -A INPUT -s x.x.x.x/32 -m comment --comment "Admin home" -j ACCEPT
+
 надо **x.x.x.x** поменять на свой статический ip-адрес. Если он есть. Желательно,
 чтобы он был домашним, то есть личным, ip-адресом. С этого адреса будет
 позволен полный доступ к серверу.
@@ -276,7 +282,7 @@ NGINX and Phusion Passenger
 А тут начались сюрпризы.
 apt-get категорически отказался устанавливать пакеты libpcre3, libxml2,
 libxslt-dev и curl-ssl:
-    --------------------------------------------------------------------------
+
     | new-user@remote$ sudo apt-get install -y libpcre3 libpcre3-dev libperl-|
     |dev libxml2-dev libxml2 libxslt-dev curl-ssl libcurl4-openssl-dev       |
     |Reading package lists... Done                                           |
@@ -290,10 +296,9 @@ libxslt-dev и curl-ssl:
     |  curl 7.18.2-8ubuntu4.1                                                |
     |You should explicitly select one to install.                            |
     |E: Package curl-ssl has no installation candidate                       |
-    --------------------------------------------------------------------------
 
 aptitude тоже ругнулся, но установку не прервал:
-    --------------------------------------------------------------------------
+
     | new-user@remote$ sudo aptitude install -y libpcre3 libpcre3-dev libperl|
     |-dev libxml2-dev libxml2 libxslt-dev curl-ssl libcurl4-openssl-dev      |
     |Reading package lists... Done                                           |
@@ -319,7 +324,6 @@ aptitude тоже ругнулся, но установку не прервал:
     |                               ~ ~ ~                                    |
     |Initializing package states... Done                                     |
     |Writing extended state information... Done                              |
-    --------------------------------------------------------------------------
 
 Как видно, aptitude заменил libxslt-dev на libxslt1-dev, и curl-ssl на curl.
 Также, они (apt-get и aptitude) любезно сообщили, что вышеупомянутые пакеты
@@ -339,10 +343,9 @@ PostgreSQL related stuff
   * Adding user and database
 
 psql ни в какую не хотел признавать существование юзера postgres:
-  ----------------------------------------------------------------------------
+
   | new-user@remote$ psql -Upostgres                                         |
   |psql: FATAL:  Ident authentication failed for user "postgres"             |
-  ----------------------------------------------------------------------------
 
 Но я нашёл, как поправить это гадство. На форуме сайта sql.ru, в ветке 
 http://www.sql.ru/Forum/actualthread.aspx?bid=7&tid=451845&hl=
@@ -358,10 +361,9 @@ http://www.sql.ru/Forum/actualthread.aspx?bid=7&tid=451845&hl=
   local   all         postgres                          trust
 
 После чего перезапустил PostgeSQL:
-  ----------------------------------------------------------------------------
+
   | new-user@remote$ sudo /etc/init.d/postgresql-8.4 restart                 |
   | * Restarting PostgreSQL 8.4 database serv                          [ OK ]|
-  ----------------------------------------------------------------------------
 
 Остальные действия прошли без эксцессов.
 
