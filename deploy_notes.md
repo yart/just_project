@@ -19,7 +19,7 @@ Add admin user
 группы, по-дефолту, в убунте нет. И команда useradd ругается на несуществующую
 группу. Пришлось добавлять вручную:
 
-    | root@remote# groupadd admin |
+     root@remote# groupadd admin 
 
 А потом уже добавлять пользователя.
 
@@ -69,18 +69,18 @@ Public key auth
 
 Заодно, я решил проверить, корректно ли выполнился предыдущий подраздел:
 
-    | root@remote# su new-user             |
-    | new-user@remote$ sudo apt-get update |
+     root@remote# su new-user             
+     new-user@remote$ sudo apt-get update 
     
 Ух ты! Работает, шайтан-машина!
 
 Поехали дальше. Домашний каталог у нового пользователя девственно чист, за
 исключением трёх скрытых файлов:
 
-    | new-user@remote$ pwd                  |
-    |/home/new-user                         |
-    | new-user@remote$ ls -a                |
-    |.  ..  .bash_logout  .bashrc  .profile |
+     new-user@remote$ pwd                  
+    /home/new-user                         
+     new-user@remote$ ls -a                
+    .  ..  .bash_logout  .bashrc  .profile 
 
 Максим предлагает следующее: посмотреть локальный файл с публичным ключом
 командой cat, создать каталог .ssh в домашней папке пользователя new-user и,
@@ -144,36 +144,36 @@ http://www.opennet.ru/base/sec/ssh\_pubkey\_auth.txt.html
 
 Так это, или не так, сейчас проверим.
 
-    | user@local$ ssh-copy-id -i ~/.ssh/id_rsa.pub new-user@000.111.222.333  |
-    |new-user@000.111.222.333's password: <enter password>                   |
-    |Now try logging into the machine, with "ssh 'new-user@000.111.222.333'",|
-    |and check in:                                                           |
-    |                                                                        |
-    |.ssh/authorized_keys                                                    |
-    |                                                                        |
-    |to make sure we haven't added extra keys that you weren't expecting.    |
+     user@local$ ssh-copy-id -i ~/.ssh/id_rsa.pub new-user@000.111.222.333  
+    new-user@000.111.222.333's password: <enter password>                   
+    Now try logging into the machine, with "ssh 'new-user@000.111.222.333'",
+    and check in:                                                           
+                                                                            
+    .ssh/authorized_keys                                                    
+                                                                            
+    to make sure we haven't added extra keys that you weren't expecting.    
 
 Всё прошло успешно, и ssh-copy-id предлагает залогиниться через ssh, как
 new-user@000.111.222.333, и проверить файл .ssh/authorized\_keys, "чтобы
 убедиться, что мы не добавили левые ключи, которых вы не ожидали". Заботливый
 скрипт, однако!
 
-    | user@local$ ssh new-user@000.111.222.333                               |
-    |Linux remote 2.6.bla-bla-bla #1 SMP Fri Oct 1 14:17:14 MSD 2010 i686    |
-    |                                                                        |
-    |The programs included with the Ubuntu system are free software;         |
-    |the exact distribution terms for each program are described in the      |
-    |individual files in /usr/share/doc/*/copyright.                         |
-    |                                                                        |
-    |Ubuntu comes with ABSOLUTELY NO WARRANTY, to the extent permitted by    |
-    |applicable law.                                                         |
-    |                                                                        |
-    |To access official Ubuntu documentation, please visit:                  |
-    |http://help.ubuntu.com/                                                 |
-    |To run a command as administrator (user "root"), use "sudo <command>".  |
-    |See "man sudo_root" for details.                                        |
-    |                                                                        |
-    | new-user@remote$                                                       |
+     user@local$ ssh new-user@000.111.222.333                               
+    Linux remote 2.6.bla-bla-bla #1 SMP Fri Oct 1 14:17:14 MSD 2010 i686    
+                                                                            
+    The programs included with the Ubuntu system are free software;         
+    the exact distribution terms for each program are described in the      
+    individual files in /usr/share/doc/*/copyright.                         
+                                                                            
+    Ubuntu comes with ABSOLUTELY NO WARRANTY, to the extent permitted by    
+    applicable law.                                                         
+                                                                            
+    To access official Ubuntu documentation, please visit:                  
+    http://help.ubuntu.com/                                                 
+    To run a command as administrator (user "root"), use "sudo <command>".  
+    See "man sudo_root" for details.                                        
+                                                                            
+     new-user@remote$                                                       
 
 Всё прошло удачно. Как я и предполагал, ssh попросил именно тот пароль,
 который я указывал при создании публичного ключа. Из чего следует два вывода:
@@ -283,47 +283,47 @@ NGINX and Phusion Passenger
 apt-get категорически отказался устанавливать пакеты libpcre3, libxml2,
 libxslt-dev и curl-ssl:
 
-    | new-user@remote$ sudo apt-get install -y libpcre3 libpcre3-dev libperl-|
-    |dev libxml2-dev libxml2 libxslt-dev curl-ssl libcurl4-openssl-dev       |
-    |Reading package lists... Done                                           |
-    |Building dependency tree                                                |
-    |Reading state information... Done                                       |
-    |libpcre3 is already the newest version.                                 |
-    |libxml2 is already the newest version.                                  |
-    |libxml2 set to manually installed.                                      |
-    |Note, selecting libxslt1-dev instead of libxslt-dev                     |
-    |Package curl-ssl is a virtual package provided by:                      |
-    |  curl 7.18.2-8ubuntu4.1                                                |
-    |You should explicitly select one to install.                            |
-    |E: Package curl-ssl has no installation candidate                       |
+     new-user@remote$ sudo apt-get install -y libpcre3 libpcre3-dev libperl-
+    dev libxml2-dev libxml2 libxslt-dev curl-ssl libcurl4-openssl-dev       
+    Reading package lists... Done                                           
+    Building dependency tree                                                
+    Reading state information... Done                                       
+    libpcre3 is already the newest version.                                 
+    libxml2 is already the newest version.                                  
+    libxml2 set to manually installed.                                      
+    Note, selecting libxslt1-dev instead of libxslt-dev                     
+    Package curl-ssl is a virtual package provided by:                      
+      curl 7.18.2-8ubuntu4.1                                                
+    You should explicitly select one to install.                            
+    E: Package curl-ssl has no installation candidate                       
 
 aptitude тоже ругнулся, но установку не прервал:
 
-    | new-user@remote$ sudo aptitude install -y libpcre3 libpcre3-dev libperl|
-    |-dev libxml2-dev libxml2 libxslt-dev curl-ssl libcurl4-openssl-dev      |
-    |Reading package lists... Done                                           |
-    |Building dependency tree                                                |
-    |Reading state information... Done                                       |
-    |Reading extended state information                                      |
-    |Initializing package states... Done                                     |
-    |Writing extended state information... Done                              |
-    |Note: selecting "libxslt1-dev" instead of the                           |
-    |      virtual package "libxslt-dev"                                     |
-    |Note: selecting "curl" instead of the                                   |
-    |      virtual package "curl-ssl"                                        |
-    |The following NEW packages will be installed:                           |
-    |  curl libcurl3{a} libcurl4-openssl-dev libglib2.0-0{a} libglib2.0-data{|
-    |a} libidn11-dev{a} libldap2-dev{a} libpcre3-dev                         |
-    |  libpcrecpp0{a} libperl-dev libperl5.10{a} libxml2-dev libxslt1-dev lib|
-    |xslt1.1{a} pkg-config{a} shared-mime-info{a}                            |
-    |0 packages upgraded, 16 newly installed, 0 to remove and 0 not upgraded.|
-    |Need to get 8887kB of archives. After unpacking 28,7MB will be used.    |
-    |Writing extended state information... Done                              |
-    |Get:1 http://fr.archive.ubuntu.com jaunty-updates/main libcurl3 7.18.2-8|
-    |ubuntu4.1 [220kB]                                                       |
-    |                               ~ ~ ~                                    |
-    |Initializing package states... Done                                     |
-    |Writing extended state information... Done                              |
+     new-user@remote$ sudo aptitude install -y libpcre3 libpcre3-dev libperl
+    -dev libxml2-dev libxml2 libxslt-dev curl-ssl libcurl4-openssl-dev      
+    Reading package lists... Done                                           
+    Building dependency tree                                                
+    Reading state information... Done                                       
+    Reading extended state information                                      
+    Initializing package states... Done                                     
+    Writing extended state information... Done                              
+    Note: selecting "libxslt1-dev" instead of the                           
+          virtual package "libxslt-dev"                                     
+    Note: selecting "curl" instead of the                                   
+          virtual package "curl-ssl"                                        
+    The following NEW packages will be installed:                           
+      curl libcurl3{a} libcurl4-openssl-dev libglib2.0-0{a} libglib2.0-data{
+    a} libidn11-dev{a} libldap2-dev{a} libpcre3-dev                         
+      libpcrecpp0{a} libperl-dev libperl5.10{a} libxml2-dev libxslt1-dev lib
+    xslt1.1{a} pkg-config{a} shared-mime-info{a}                            
+    0 packages upgraded, 16 newly installed, 0 to remove and 0 not upgraded.
+    Need to get 8887kB of archives. After unpacking 28,7MB will be used.    
+    Writing extended state information... Done                              
+    Get:1 http://fr.archive.ubuntu.com jaunty-updates/main libcurl3 7.18.2-8
+    ubuntu4.1 [220kB]                                                       
+                                   ~ ~ ~                                    
+    Initializing package states... Done                                     
+    Writing extended state information... Done                              
 
 Как видно, aptitude заменил libxslt-dev на libxslt1-dev, и curl-ssl на curl.
 Также, они (apt-get и aptitude) любезно сообщили, что вышеупомянутые пакеты
@@ -344,8 +344,8 @@ PostgreSQL related stuff
 
 psql ни в какую не хотел признавать существование юзера postgres:
 
-  | new-user@remote$ psql -Upostgres                                         |
-  |psql: FATAL:  Ident authentication failed for user "postgres"             |
+   new-user@remote$ psql -Upostgres                                         
+  psql: FATAL:  Ident authentication failed for user "postgres"             
 
 Но я нашёл, как поправить это гадство. На форуме сайта sql.ru, в ветке 
 http://www.sql.ru/Forum/actualthread.aspx?bid=7&tid=451845&hl=
@@ -362,8 +362,8 @@ http://www.sql.ru/Forum/actualthread.aspx?bid=7&tid=451845&hl=
 
 После чего перезапустил PostgeSQL:
 
-  | new-user@remote$ sudo /etc/init.d/postgresql-8.4 restart                 |
-  | * Restarting PostgreSQL 8.4 database serv                          [ OK ]|
+   new-user@remote$ sudo /etc/init.d/postgresql-8.4 restart                 
+   * Restarting PostgreSQL 8.4 database serv                          [ OK ]
 
 Остальные действия прошли без эксцессов.
 
