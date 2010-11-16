@@ -183,10 +183,11 @@ new-user@000.111.222.333, и проверить файл .ssh/authorized\_keys, 
 
 Следующий, немаловажный, как я понял момент: выставляем права на каталог
 ~/.ssh:
-    remote$ chmod 600 .ssh/authorized_keys // только пользователь может читать
-                                           // и изменять файл
-    remote$ chmod 700 .ssh                 // только пользователь может видеть и
-                                           // изменять каталог
+    
+     new-user@remote$ chmod 600 .ssh/authorized_keys // только пользователь может читать
+                                                     // и изменять файл
+     new-user@remote$ chmod 700 .ssh                 // только пользователь может видеть и
+                                                     // изменять каталог
 
 Уф! Вроде бы разобрался.
 
@@ -223,10 +224,10 @@ Firewall
 находится в гит-репозитарии, которым я и пользуюсь сейчас.
 
 В общем, вот что пришлось делать:
-    $ sudo aptitude install git-core iptables
+     user@local$ sudo aptitude install git-core iptables
     //Этого добра на моём VDS не водилось изначально.
-    $ git clone git://github.com/Bregor/spbruby-deploy-notes.git
-    $ cd spbruby-deploy-notes
+     user@local$ git clone git://github.com/Bregor/spbruby-deploy-notes.git
+     user@local$ cd spbruby-deploy-notes
 Далее — по инструкции Макса.
 
 В файле /var/lib/iptables/rules\_save, в строчке:
@@ -284,8 +285,7 @@ NGINX and Phusion Passenger
 apt-get категорически отказался устанавливать пакеты libpcre3, libxml2,
 libxslt-dev и curl-ssl:
 
-     new-user@remote$ sudo apt-get install -y libpcre3 libpcre3-dev libperl-
-    dev libxml2-dev libxml2 libxslt-dev curl-ssl libcurl4-openssl-dev       
+     new-user@remote$ sudo apt-get install -y libpcre3 libpcre3-dev libperl-dev libxml2-dev libxml2 libxslt-dev curl-ssl libcurl4-openssl-dev       
     Reading package lists... Done                                           
     Building dependency tree                                                
     Reading state information... Done                                       
@@ -300,8 +300,7 @@ libxslt-dev и curl-ssl:
 
 aptitude тоже ругнулся, но установку не прервал:
 
-     new-user@remote$ sudo aptitude install -y libpcre3 libpcre3-dev libperl
-    -dev libxml2-dev libxml2 libxslt-dev curl-ssl libcurl4-openssl-dev      
+     new-user@remote$ sudo aptitude install -y libpcre3 libpcre3-dev libperl-dev libxml2-dev libxml2 libxslt-dev curl-ssl libcurl4-openssl-dev      
     Reading package lists... Done                                           
     Building dependency tree                                                
     Reading state information... Done                                       
@@ -313,16 +312,16 @@ aptitude тоже ругнулся, но установку не прервал:
     Note: selecting "curl" instead of the                                   
           virtual package "curl-ssl"                                        
     The following NEW packages will be installed:                           
-      curl libcurl3{a} libcurl4-openssl-dev libglib2.0-0{a} libglib2.0-data{
-    a} libidn11-dev{a} libldap2-dev{a} libpcre3-dev                         
-      libpcrecpp0{a} libperl-dev libperl5.10{a} libxml2-dev libxslt1-dev lib
-    xslt1.1{a} pkg-config{a} shared-mime-info{a}                            
+      curl libcurl3{a} libcurl4-openssl-dev libglib2.0-0{a} libglib2.0-data{a} libidn11-dev{a} libldap2-dev{a} libpcre3-dev
+      libpcrecpp0{a} libperl-dev libperl5.10{a} libxml2-dev libxslt1-dev libxslt1.1{a} pkg-config{a} shared-mime-info{a} 
     0 packages upgraded, 16 newly installed, 0 to remove and 0 not upgraded.
     Need to get 8887kB of archives. After unpacking 28,7MB will be used.    
     Writing extended state information... Done                              
     Get:1 http://fr.archive.ubuntu.com jaunty-updates/main libcurl3 7.18.2-8
-    ubuntu4.1 [220kB]                                                       
+    ubuntu4.1 [220kB]            
+
                                    ~ ~ ~                                    
+
     Initializing package states... Done                                     
     Writing extended state information... Done                              
 
@@ -428,8 +427,8 @@ Search
 Эту часть не устанвливал. Пока не вижу необходимости. Возможно, позже вернусь
 к этому разделу.
 
-- - -
-
+POST SCRIPTUM
+=============
 Возникли некоторые грабли при попытке запустить стандартное приложение.
 
 1.  postgresql наотрез отказался работать с пользователем, только с рутом.
@@ -438,7 +437,11 @@ Search
 3.  postgreSQL ненавидит точку в названии базы данных. Поэтому имена вида
     example.com_development не принимаются.
 
-Все вышеперечисленные нестыковки, вызывали ошибку: ...
+Все вышеперечисленные нестыковки, вызывали ошибку: *"We're sorry, but something
+went wrong. 
+We've been notified about this issue and we'll take a look at it 
+shortly."*
+
 В логах сообщалось, что ошибка возникает при обращении к несуществующей базе
 данных. Так как я сразу запускал стандартное приложение в окружении production,
 то, в-принципе, понятно откуда ошибка: эта база тупо не была создана (см. п.2)
@@ -453,6 +456,4 @@ You may have mistyped the address or the page may have moved."*
 
 Кстати, список существующих баз данных, для postgreSQL, можно получить командой
     psql -l
-
-  
 --------------------------------------------------------------------------------
