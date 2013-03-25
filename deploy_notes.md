@@ -456,6 +456,7 @@ You may have mistyped the address or the page may have moved."*
 
 Кстати, список существующих баз данных, для postgreSQL, можно получить командой
     psql -l
+
 --------------------------------------------------------------------------------
 [1]: https://github.com/Bregor/spbruby-deploy-notes
 [2]: https://groups.google.com/groups/profile?hl=ru&enc_user=R-LXqBMAAAAEutvFgtXHbFbSFkm_dcwBWMj6vob75xS36mXc24h6ww
